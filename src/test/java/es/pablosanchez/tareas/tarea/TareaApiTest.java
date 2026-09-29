@@ -12,21 +12,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -40,21 +34,12 @@ import org.springframework.test.web.servlet.ResultActions;
         "spring.datasource.url=jdbc:h2:mem:api;DB_CLOSE_DELAY=-1"
 })
 @AutoConfigureMockMvc
-@Import(TareaApiTest.RelojFijo.class)
+@Import(RelojFijo.class)
 @DisplayName("API /api/tareas")
 class TareaApiTest {
 
     /** "Hoy" es siempre el 1 de octubre de 2026 en estos tests. */
-    static final LocalDate HOY = LocalDate.of(2026, 10, 1);
-
-    @TestConfiguration
-    static class RelojFijo {
-        @Bean
-        @Primary
-        Clock relojDeTest() {
-            return Clock.fixed(Instant.parse("2026-10-01T10:00:00Z"), ZoneOffset.UTC);
-        }
-    }
+    static final LocalDate HOY = RelojFijo.HOY;
 
     @Autowired
     MockMvc mvc;

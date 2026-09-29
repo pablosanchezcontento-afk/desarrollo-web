@@ -97,6 +97,9 @@ docker build -t gestor-tareas .
 docker run -p 8080:8080 -v gestor-datos:/app/data gestor-tareas
 ```
 
+La imagen arranca con el perfil **`prod`** (`application-prod.properties`): consola de H2 desactivada, sin
+datos de ejemplo y sin trazas en los errores. Corre como usuario sin privilegios y declara un `HEALTHCHECK`.
+
 ### Otras URL útiles
 
 | URL | Qué es |
@@ -104,12 +107,23 @@ docker run -p 8080:8080 -v gestor-datos:/app/data gestor-tareas
 | `/swagger-ui.html` | Documentación interactiva de la API |
 | `/v3/api-docs` | Especificación OpenAPI en JSON |
 | `/actuator/health` | Estado de la aplicación |
-| `/h2-console` | Consola de la base de datos (URL JDBC `jdbc:h2:file:./data/tareas`, usuario `sa`) |
+| `/h2-console` | Consola de la base de datos, **solo en desarrollo** (URL JDBC `jdbc:h2:file:./data/tareas`, usuario `sa`) |
+
+### Seguridad
+
+Todas las respuestas llevan `X-Content-Type-Options`, `Referrer-Policy` y `Permissions-Policy`. La página y la
+API llevan además una **Content-Security-Policy** estricta (solo recursos propios, sin scripts ni estilos en
+línea) y `X-Frame-Options: DENY`. El frontend pinta los datos con `textContent`, nunca con `innerHTML`, y una
+prueba E2E comprueba que un título con HTML se muestra literal.
 
 ## Pruebas
 
 ```bash
-./mvnw verify    # 34 tests + informe de cobertura en target/site/jacoco/
+./mvnw verify    # 37 tests + cobertura mínima (95 % líneas, 90 % ramas) en target/site/jacoco/
+
+# Pruebas en navegador contra la aplicación real (necesita Node 20+):
+./mvnw -q package -DskipTests
+cd e2e && npm ci && npx playwright install chromium && npx playwright test
 ```
 
 | Tipo | Clase | Qué prueba |
@@ -117,12 +131,14 @@ docker run -p 8080:8080 -v gestor-datos:/app/data gestor-tareas
 | Unitario | `TareaTest` | Normalización de datos y cálculo de "vencida" |
 | Capa de datos | `TareaRepositoryTest` (`@DataJpaTest`) | Filtros, orden y contadores de las consultas |
 | Integración | `TareaApiTest` (`@SpringBootTest` + MockMvc) | Todos los endpoints, validaciones, códigos HTTP, OpenAPI y health |
+| Integración | `SeguridadYDatosTest` | Datos de ejemplo (una sola vez) y cabeceras de seguridad |
+| E2E | `e2e/tests/tareas.spec.js` (Playwright) | Crear, validar, vencidas, completar, editar, borrar con confirmación, búsqueda y filtros, HTML no interpretado, sin violaciones de CSP y **accesibilidad WCAG 2.1 AA con axe en modo claro y oscuro** |
 
-Los tests de integración fijan "hoy" con un `Clock` para que los resultados no
-dependan del día en que se ejecuten.
+Los tests fijan "hoy" con un `Clock` (`RelojFijo`) para que los resultados no dependan del día.
 
-La integración continua (GitHub Actions) ejecuta los tests, construye la imagen
-Docker y comprueba que el contenedor arranca y responde.
+La integración continua (GitHub Actions) ejecuta los tests con el umbral de cobertura, las pruebas en
+navegador, construye la imagen Docker y comprueba que el contenedor arranca, responde, no expone la consola de
+H2 y envía la CSP.
 
 ## Estructura
 
@@ -135,12 +151,13 @@ src/main/resources/
 ├── application.properties
 └── static/         # frontend: index.html, styles.css, app.js
 src/test/java/...   # tests unitarios, de datos y de integración
+e2e/                # pruebas en navegador con Playwright + axe
 ```
 
 ## Tecnologías
 
 Java 21 · Spring Boot 4.1 (Web MVC, Data JPA, Validation, Actuator) · H2 ·
-springdoc-openapi · JUnit 6 · MockMvc · JaCoCo · HTML5 · CSS · JavaScript (ES2022) ·
+springdoc-openapi · JUnit 6 · MockMvc · JaCoCo · Playwright · axe-core · HTML5 · CSS · JavaScript (ES2022) ·
 Docker · GitHub Actions
 
 ## Autor

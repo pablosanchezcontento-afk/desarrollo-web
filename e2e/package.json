@@ -1,0 +1,13 @@
+{
+  "name": "gestor-tareas-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Pruebas de extremo a extremo del frontend contra la aplicación Spring Boot real",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0"
+  }
+}

@@ -5,10 +5,10 @@
     --texto: #1c2430;
     --texto-suave: #5b6675;
     --borde: #dde1e7;
-    --acento: #2f6fed;
+    --acento: #2563d9;
     --acento-texto: #ffffff;
     --alta: #c62828;
-    --media: #b26a00;
+    --media: #9a5b00;
     --baja: #2e7d32;
     --peligro: #c62828;
     --radio: 10px;
@@ -22,6 +22,7 @@
         --texto-suave: #9aa4b2;
         --borde: #2c3440;
         --acento: #5b8def;
+        --acento-texto: #0b1220;
         --alta: #ef6b6b;
         --media: #f0b24a;
         --baja: #6cc070;
