@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gestor de tareas con prioridad y fecha límite">
+    <title>Gestor de tareas</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>">
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="app.js"></script>
+</head>
+<body>
+<header class="cabecera">
+    <h1>Gestor de tareas</h1>
+    <nav aria-label="Enlaces">
+        <a href="/swagger-ui.html">API (Swagger)</a>
+        <a href="https://github.com/pablosanchezcontento-afk/desarrollo-web">Código</a>
+    </nav>
+</header>
+
+<main>
+    <section aria-labelledby="titulo-resumen" class="resumen">
+        <h2 id="titulo-resumen" class="visualmente-oculto">Resumen</h2>
+        <dl>
+            <div><dt>Pendientes</dt><dd id="res-pendientes">–</dd></div>
+            <div><dt>Completadas</dt><dd id="res-completadas">–</dd></div>
+            <div class="alerta"><dt>Vencidas</dt><dd id="res-vencidas">–</dd></div>
+        </dl>
+    </section>
+
+    <section aria-labelledby="titulo-nueva" class="tarjeta">
+        <h2 id="titulo-nueva">Nueva tarea</h2>
+        <form id="form-nueva" novalidate>
+            <div class="campo campo-ancho">
+                <label for="nueva-titulo">Título</label>
+                <input id="nueva-titulo" name="titulo" required maxlength="120" autocomplete="off"
+                       placeholder="Ej.: entregar la práctica de DWES">
+            </div>
+            <div class="campo campo-ancho">
+                <label for="nueva-descripcion">Descripción <span class="opcional">(opcional)</span></label>
+                <textarea id="nueva-descripcion" name="descripcion" rows="2" maxlength="1000"></textarea>
+            </div>
+            <div class="campo">
+                <label for="nueva-prioridad">Prioridad</label>
+                <select id="nueva-prioridad" name="prioridad">
+                    <option value="BAJA">Baja</option>
+                    <option value="MEDIA" selected>Media</option>
+                    <option value="ALTA">Alta</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label for="nueva-fecha">Fecha límite <span class="opcional">(opcional)</span></label>
+                <input id="nueva-fecha" name="fechaLimite" type="date">
+            </div>
+            <p class="error" id="error-nueva" role="alert"></p>
+            <button type="submit" class="boton-principal">Añadir tarea</button>
+        </form>
+    </section>
+
+    <section aria-labelledby="titulo-lista" class="tarjeta">
+        <div class="lista-cabecera">
+            <h2 id="titulo-lista">Tareas</h2>
+            <div class="filtros" role="search">
+                <label class="visualmente-oculto" for="filtro-texto">Buscar</label>
+                <input id="filtro-texto" type="search" placeholder="Buscar…">
+                <label class="visualmente-oculto" for="filtro-estado">Estado</label>
+                <select id="filtro-estado">
+                    <option value="">Todas</option>
+                    <option value="false" selected>Pendientes</option>
+                    <option value="true">Completadas</option>
+                </select>
+                <label class="visualmente-oculto" for="filtro-prioridad">Prioridad</label>
+                <select id="filtro-prioridad">
+                    <option value="">Cualquier prioridad</option>
+                    <option value="ALTA">Alta</option>
+                    <option value="MEDIA">Media</option>
+                    <option value="BAJA">Baja</option>
+                </select>
+            </div>
+        </div>
+        <p class="error" id="error-lista" role="alert"></p>
+        <ul id="lista" class="lista" aria-live="polite"></ul>
+        <p id="vacio" class="vacio" hidden>No hay tareas con estos filtros.</p>
+    </section>
+</main>
+
+<dialog id="dialogo-editar" aria-labelledby="titulo-editar">
+    <form id="form-editar" method="dialog" novalidate>
+        <h2 id="titulo-editar">Editar tarea</h2>
+        <input type="hidden" name="id">
+        <div class="campo">
+            <label for="editar-titulo">Título</label>
+            <input id="editar-titulo" name="titulo" required maxlength="120">
+        </div>
+        <div class="campo">
+            <label for="editar-descripcion">Descripción</label>
+            <textarea id="editar-descripcion" name="descripcion" rows="3" maxlength="1000"></textarea>
+        </div>
+        <div class="campo">
+            <label for="editar-prioridad">Prioridad</label>
+            <select id="editar-prioridad" name="prioridad">
+                <option value="BAJA">Baja</option>
+                <option value="MEDIA">Media</option>
+                <option value="ALTA">Alta</option>
+            </select>
+        </div>
+        <div class="campo">
+            <label for="editar-fecha">Fecha límite</label>
+            <input id="editar-fecha" name="fechaLimite" type="date">
+        </div>
+        <p class="error" id="error-editar" role="alert"></p>
+        <div class="acciones-dialogo">
+            <button type="button" id="cancelar-editar">Cancelar</button>
+            <button type="submit" class="boton-principal">Guardar</button>
+        </div>
+    </form>
+</dialog>
+
+<template id="plantilla-tarea">
+    <li class="tarea">
+        <input type="checkbox" class="tarea-check">
+        <div class="tarea-cuerpo">
+            <p class="tarea-titulo"></p>
+            <p class="tarea-descripcion"></p>
+            <p class="tarea-meta">
+                <span class="etiqueta prioridad"></span>
+                <span class="etiqueta fecha"></span>
+            </p>
+        </div>
+        <div class="tarea-acciones">
+            <button type="button" class="boton-editar">Editar</button>
+            <button type="button" class="boton-borrar">Borrar</button>
+        </div>
+    </li>
+</template>
+</body>
+</html>
